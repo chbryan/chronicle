@@ -98,8 +98,7 @@ def utc_iso() -> str:
 def local_stamp(tz_name: str) -> Tuple[str, str]:
     tz = ZoneInfo(tz_name)
     now = datetime.now(tz).replace(microsecond=0)
-    return now.strftime("%Y-%m-%d %H:%M:%S"), now.strftime("%Y%m%d_%H%M")
-
+    return now.strftime("%Y-%m-%d %H:%M:%S"), now.strftime("%Y%m%d_%H%M%S")
 
 def u64_to_i64(u: int) -> int:
     """Store unsigned 64-bit values safely in SQLite INTEGER (signed int64)."""
