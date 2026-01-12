@@ -1,0 +1,12 @@
+sources:
+  - name: "NATO Press"
+    rss_url: "https://www.nato.int/cps/en/natohq/rss/news.rss"
+    trust_tier: 5
+    tags: ["official", "press"]
+
+  - name: "UN News"
+    rss_url: "https://news.un.org/feed/subscribe/en/news/all/rss.xml"
+    trust_tier: 4
+    tags: ["official", "international"]
+
+  # Add more sources you trust and are permitted to scrape via RSS.
