@@ -11,7 +11,11 @@
 > - This is an archival + corroboration tool for **public reporting**, not a targeting system
 
 ---
-
+# PM-Note: Switch environment.
+```
+source .venv/bin/activate
+```
+---
 ## Contents
 
 - [What’s Included](#whats-included)
