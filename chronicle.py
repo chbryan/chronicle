@@ -377,28 +377,55 @@ def record_run(
     items_inserted: int,
     config_hash: str,
     item_ids: List[str],
+    cycle_no: int = 0,  # <-- add this (single-run uses 0)
 ) -> None:
-    con.execute(
-        """
-        INSERT INTO runs (
-            run_id, started_at_utc, finished_at_utc, tz_name, keyword,
-            min_trust_tier, items_seen, items_matched, items_inserted, config_hash
+    cols = {r["name"] for r in con.execute("PRAGMA table_info(runs)").fetchall()}
+
+    if "cycle_no" in cols:
+        con.execute(
+            """
+            INSERT INTO runs (
+                run_id, cycle_no, started_at_utc, finished_at_utc, tz_name, keyword,
+                min_trust_tier, items_seen, items_matched, items_inserted, config_hash
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                run_id,
+                cycle_no,
+                started_at_utc,
+                finished_at_utc,
+                tz_name,
+                keyword,
+                min_trust_tier,
+                items_seen,
+                items_matched,
+                items_inserted,
+                config_hash,
+            ),
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        (
-            run_id,
-            started_at_utc,
-            finished_at_utc,
-            tz_name,
-            keyword,
-            min_trust_tier,
-            items_seen,
-            items_matched,
-            items_inserted,
-            config_hash,
-        ),
-    )
+    else:
+        con.execute(
+            """
+            INSERT INTO runs (
+                run_id, started_at_utc, finished_at_utc, tz_name, keyword,
+                min_trust_tier, items_seen, items_matched, items_inserted, config_hash
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                run_id,
+                started_at_utc,
+                finished_at_utc,
+                tz_name,
+                keyword,
+                min_trust_tier,
+                items_seen,
+                items_matched,
+                items_inserted,
+                config_hash,
+            ),
+        )
 
     for iid in item_ids:
         con.execute(
@@ -407,6 +434,7 @@ def record_run(
         )
 
     con.commit()
+
 
 
 # ----------------------------
@@ -741,19 +769,20 @@ def main() -> int:
         finished_at_utc = utc_iso()
 
         record_run(
-            con,
-            run_id=run_id,
-            started_at_utc=started_at_utc,
-            finished_at_utc=finished_at_utc,
-            tz_name=args.tz,
-            keyword=(args.keyword.strip() or None),
-            min_trust_tier=args.min_trust_tier,
-            items_seen=items_seen,
-            items_matched=items_matched,
-            items_inserted=items_inserted,
-            config_hash=config_hash,
-            item_ids=inserted_ids,
-        )
+    con,
+    run_id=run_id,
+    started_at_utc=started_at_utc,
+    finished_at_utc=finished_at_utc,
+    tz_name=args.tz,
+    keyword=(args.keyword.strip() or None),
+    min_trust_tier=args.min_trust_tier,
+    items_seen=items_seen,
+    items_matched=items_matched,
+    items_inserted=items_inserted,
+    config_hash=config_hash,
+    item_ids=inserted_ids,
+    cycle_no=0,  # <-- add
+)
 
     oplog, local_file_stamp = format_oplog(
         project_name=project_name,
